@@ -3,13 +3,9 @@
   "displayName": "%ext.displayName%",
   "description": "%ext.description%",
   "repository": "https://github.com/whyreal/vs-picgo",
-  "issues": "https://github.com/PicGo/whyreal/issues",
+  "issues": "https://github.com/whyreal/vs-picgo/issues",
   "keywords": [
-    "image",
-    "picture",
-    "upload",
-    "image upload",
-    "picture upload"
+    "whyreal"
   ],
   "version": "1.0.1",
   "publisher": "whyreal",
@@ -19,7 +15,7 @@
   "categories": [
     "Other"
   ],
-  "icon": "logo.png",
+  "icon": "",
   "activationEvents": [
     "onLanguage:markdown"
   ],
@@ -340,8 +336,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,mjsx,cjs,cjsx}": [
-      "eslint --fix --color",
-      "git add"
+      "eslint --fix --color"
     ]
   },
   "config": {
