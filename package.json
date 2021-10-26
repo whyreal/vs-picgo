@@ -1,12 +1,18 @@
 {
-  "name": "vs-picgo",
+  "name": "wr-vs-picgo",
   "displayName": "%ext.displayName%",
   "description": "%ext.description%",
-  "repository": "https://github.com/PicGo/vs-picgo",
-  "issues": "https://github.com/PicGo/vs-picgo/issues",
-  "keywords": "%ext.keywords%",
-  "version": "2.1.6",
-  "publisher": "Spades",
+  "repository": "https://github.com/whyreal/vs-picgo",
+  "issues": "https://github.com/PicGo/whyreal/issues",
+  "keywords": [
+    "image",
+    "picture",
+    "upload",
+    "image upload",
+    "picture upload"
+  ],
+  "version": "1.0.1",
+  "publisher": "whyreal",
   "engines": {
     "vscode": "^1.60.0"
   },
@@ -15,11 +21,7 @@
   ],
   "icon": "logo.png",
   "activationEvents": [
-    "onCommand:picgo.uploadImageFromClipboard",
-    "onCommand:picgo.uploadImageFromExplorer",
-    "onCommand:picgo.uploadImageFromInputBox",
-    "onCommand:picgo.webviewDemo",
-    "onCommand:picgo.webviewPicGoControlPanel"
+    "onLanguage:markdown"
   ],
   "main": "./dist/extension",
   "contributes": {
@@ -37,6 +39,11 @@
       {
         "command": "picgo.uploadImageFromInputBox",
         "title": "%command.upload.inputBox.title%",
+        "category": "PicGo"
+      },
+      {
+        "command": "picgo.uploadImageFromCursor",
+        "title": "%command.upload.cursor.title%",
         "category": "PicGo"
       },
       {
@@ -61,6 +68,12 @@
         "command": "picgo.uploadImageFromExplorer",
         "key": "ctrl+alt+e",
         "mac": "cmd+alt+e",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "picgo.uploadImageFromCursor",
+        "key": "",
+        "mac": "",
         "when": "editorTextFocus"
       },
       {

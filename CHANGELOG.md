@@ -1,3 +1,12 @@
+## :tada: 1.0.1 (2021-10-26)
+
+
+### :sparkles: Features
+
+* **webview:** setup esbuild and PicGoControlPanel webview page ([#105](https://github.com/whyreal/vs-picgo/issues/105)) ([fe25208](https://github.com/whyreal/vs-picgo/commit/fe25208))
+
+
+
 ## :tada: 2.1.6 (2021-08-21)
 
 
