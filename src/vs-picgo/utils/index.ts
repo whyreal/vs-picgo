@@ -4,7 +4,7 @@
 
 import * as path from 'path'
 import { IUploadName, IOutputUrl } from '..'
-import { window } from 'vscode'
+import { Range, window } from 'vscode'
 import { IImgInfo } from 'picgo/dist/src/utils/interfaces'
 import { IMessageToShow } from '../../utils'
 
@@ -62,19 +62,16 @@ function decorateMessage(message: string): string {
 
 export const showWarning = asyncWrapper(async (message: string) => {
   message = decorateMessage(message)
-  console.warn(message)
   return await window.showWarningMessage(message)
 })
 
 export const showError = asyncWrapper(async (message: string) => {
   message = decorateMessage(message)
-  console.warn(message)
   return await window.showErrorMessage(message)
 })
 
 export const showInfo = asyncWrapper(async (message: string) => {
   message = decorateMessage(message)
-  console.warn(message)
   return await window.showInformationMessage(message)
 })
 
@@ -124,5 +121,43 @@ export function asyncWrapper<Args extends any[], T>(
       await showError(`Unexpected error: ${String(e)}`)
     })
     // return void here
+  }
+}
+
+export async function detectImgUrlRange(): Promise<Range | undefined> {
+  const editor = window.activeTextEditor
+  if (!editor) {
+    return
+  }
+
+  const doc = editor.document
+  const cursor = editor.selection.active
+  const line = doc.lineAt(cursor.line)
+
+  // ![txt](url "title")
+  const link = new RegExp(
+    /(!\[[^[\]]*\]\()/.source + // ![txt](
+      /([^()"]*)/.source + // url
+      /(?:\s*"[^"]*")?\)/.source, // "title")
+    'g'
+  )
+
+  const matched = line.text.matchAll(link)
+  for (const i of matched) {
+    if (typeof i.index === 'undefined') {
+      break
+    }
+
+    if (
+      cursor.character >= i.index &&
+      cursor.character <= i.index + i[0].length
+    ) {
+      return new Range(
+        cursor.line,
+        i.index + i[1].length,
+        cursor.line,
+        i.index + i[1].length + i[2].length
+      )
+    }
   }
 }

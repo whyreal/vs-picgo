@@ -6,6 +6,19 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--enable-proposed-api whyreal.wr-vs-picgo"
+      ],
+      "name": "Launch Extension",
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js"
+      ],
+      "preLaunchTask": "${defaultBuildTask}",
+      "request": "launch",
+      "type": "pwa-extensionHost"
+    },
+    {
       "name": "Debug Extension",
       "type": "extensionHost",
       "request": "launch",

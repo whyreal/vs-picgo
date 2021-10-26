@@ -12,12 +12,14 @@ import {
   showInfo,
   showError,
   getUploadedName,
-  asyncWrapper
+  asyncWrapper,
+  detectImgUrlRange
 } from './utils'
 import { IImgInfo, IPlugin, IPicGo, IConfig } from 'picgo/dist/src/types'
 
 import _ from './utils/lodash-mixins'
 import PicGoCore from 'picgo'
+import { window, workspace, WorkspaceEdit } from 'vscode'
 
 import nls = require('../../package.nls.json')
 // eslint-disable-next-line
@@ -56,9 +58,9 @@ export default class VSPicgo extends EventEmitter {
     super()
     this.configPicgo()
     // Before upload, we change names of the images.
-    this.registerRenamePlugin()
+    // this.registerRenamePlugin()
     // After upload, we use the custom output format.
-    this.addGenerateOutputListener()
+    // this.addGenerateOutputListener()
   }
 
   configPicgo() {
@@ -83,6 +85,49 @@ export default class VSPicgo extends EventEmitter {
     // see https://github.com/PicGo/vs-picgo/issues/75 for more detail
     ;(config as any).PICGO_ENV = 'CLI'
     VSPicgo.picgo.setConfig(config)
+  }
+
+  addChangeUrlListener() {
+    VSPicgo.picgo.on(
+      'finished',
+      asyncWrapper(async (ctx: PicGoCore) => {
+        try {
+          await this.updateData(ctx.output)
+        } catch (err) {
+          if (err instanceof SyntaxError) {
+            showError(
+              `the data file ${this.dataPath} has syntax error, ` +
+                `please fix the error by yourself or delete the data file and vs-picgo will recreate for you.`
+            )
+          } else {
+            showError(
+              `failed to read from data file ${this.dataPath}: ${String(
+                err ?? ''
+              )}`
+            )
+          }
+          return
+        }
+        const editor = window.activeTextEditor
+        if (!editor) {
+          return
+        }
+        const doc = editor.document
+
+        const url = ctx.output[0].imgUrl ?? ''
+        const edits = new WorkspaceEdit()
+        const urlRange = await detectImgUrlRange()
+        if (!urlRange) {
+          showError('Can not detect img url to be replaced!!')
+          showError(`uploaded url is ${url}`)
+          return
+        }
+        edits.replace(doc.uri, urlRange, url)
+        await workspace.applyEdit(edits)
+        showInfo(`image uploaded successfully.`)
+        this.emit(EVSPicgoHooks.updated, url)
+      })
+    )
   }
 
   addGenerateOutputListener() {

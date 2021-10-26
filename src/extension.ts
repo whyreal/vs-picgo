@@ -2,8 +2,10 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as vscode from 'vscode'
+import { window } from 'vscode'
 import VSPicgo from './vs-picgo'
 import { PanelManager } from './vs-picgo/PanelManager'
+import { detectImgUrlRange } from './vs-picgo/utils'
 
 async function uploadImageFromClipboard(vspicgo: VSPicgo) {
   return await vspicgo.upload()
@@ -43,22 +45,58 @@ async function uploadImageFromInputBox(vspicgo: VSPicgo) {
   }
 }
 
+async function uploadImageFromCursor(vspicgo: VSPicgo) {
+  const urlRange = await detectImgUrlRange()
+  if (!urlRange) {
+    return await window.showInformationMessage('Can not detect image url!!')
+  }
+
+  const editor = window.activeTextEditor
+  if (!editor) {
+    return
+  }
+  const doc = editor.document
+  const url = doc.getText(urlRange)
+
+  if (!url) {
+    return await window.showInformationMessage('Can not detect image url!!')
+  }
+
+  return await vspicgo.upload([url])
+}
+
 export async function activate(context: vscode.ExtensionContext) {
-  const vspicgo = new VSPicgo()
   const panelManager = new PanelManager(context)
   const disposable = [
     vscode.commands.registerCommand(
       'picgo.uploadImageFromClipboard',
-      async () => await uploadImageFromClipboard(vspicgo)
+      async () => {
+        const vspicgo = new VSPicgo()
+        vspicgo.addGenerateOutputListener()
+        await uploadImageFromClipboard(vspicgo)
+      }
     ),
     vscode.commands.registerCommand(
       'picgo.uploadImageFromExplorer',
-      async () => await uploadImageFromExplorer(vspicgo)
+      async () => {
+        const vspicgo = new VSPicgo()
+        vspicgo.addGenerateOutputListener()
+        await uploadImageFromExplorer(vspicgo)
+      }
     ),
     vscode.commands.registerCommand(
       'picgo.uploadImageFromInputBox',
-      async () => await uploadImageFromInputBox(vspicgo)
+      async () => {
+        const vspicgo = new VSPicgo()
+        vspicgo.addGenerateOutputListener()
+        await uploadImageFromInputBox(vspicgo)
+      }
     ),
+    vscode.commands.registerCommand('picgo.uploadImageFromCursor', async () => {
+      const vspicgo = new VSPicgo()
+      vspicgo.addChangeUrlListener()
+      await uploadImageFromCursor(vspicgo)
+    }),
 
     vscode.commands.registerCommand('picgo.webviewDemo', () =>
       panelManager.createOrShowWebviewPanel('Demo')
